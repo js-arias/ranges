@@ -8,6 +8,7 @@ package main
 import (
 	"github.com/js-arias/command"
 	"github.com/js-arias/ranges/cmd/taxrange/imppoints"
+	"github.com/js-arias/ranges/cmd/taxrange/mapcmd"
 	"github.com/js-arias/ranges/cmd/taxrange/taxa"
 )
 
@@ -18,6 +19,7 @@ var app = &command.Command{
 
 func init() {
 	app.Add(imppoints.Command)
+	app.Add(mapcmd.Command)
 	app.Add(taxa.Command)
 }
 
