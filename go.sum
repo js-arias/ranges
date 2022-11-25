@@ -1,3 +1,5 @@
+github.com/js-arias/command v0.0.0-20220321160405-bad66700a180 h1:pE1RCqlGkRZTdwAUK833XGbz5FvTHBaS/OW0GQXz5pM=
+github.com/js-arias/command v0.0.0-20220321160405-bad66700a180/go.mod h1:ogKwQI2+xKu3CeddpPBks1UacMtHx40lkPcsP26Zyn0=
 github.com/js-arias/earth v0.0.0-20221122200648-0673820d1a2b h1:8KDJnTyYxH7bebOEzpFnL7OU9aPrFYin1waV/mUxUwc=
 github.com/js-arias/earth v0.0.0-20221122200648-0673820d1a2b/go.mod h1:T2whg8R6iEgoRUVDSQDBAGWZ88xFW2SRaWomw8ImRSQ=
 golang.org/x/exp v0.0.0-20220713135740-79cabaa25d75 h1:x03zeu7B2B11ySp+daztnwM5oBJ/8wGUSqrwcw9L0RA=
