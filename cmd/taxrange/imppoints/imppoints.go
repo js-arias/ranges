@@ -65,6 +65,7 @@ var format string
 var output string
 
 func setFlags(c *command.Command) {
+	c.Flags().IntVar(&equator, "e", 360, "")
 	c.Flags().IntVar(&equator, "equator", 360, "")
 	c.Flags().StringVar(&format, "format", "text", "")
 	c.Flags().StringVar(&format, "f", "text", "")
