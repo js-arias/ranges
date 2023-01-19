@@ -35,6 +35,9 @@ var Command = &command.Command{
 Package map draws the geographic range of the indicated taxon using a plate
 carrée (equirectangular) projection.
 
+One or more range files can be given as arguments. If no file is given, the
+ranges will be read from the standard input.
+
 Flag --output, or -o, is required and sets the name of the output image. If
 multiple taxa are used, the taxon name, taxon age and type of range will be
 append to the name of the image. By default the background image will be empty,
@@ -46,8 +49,8 @@ for the time pixelation values can be defined with the flag --key, and flag
 output image will be 3600 pixels wide, use the flag --columns, or -c, to define
 a different number of image columns.
 
-By default all taxa will be printed. Use the flag -taxon to define a particular
-taxon to be draw.
+By default maps for all taxa will be produced. Use the flag -taxon to define a
+particular taxon to be mapped.
 	`,
 	SetFlags: setFlags,
 	Run:      run,
