@@ -221,7 +221,7 @@ func readTextData(r io.Reader, name string, c *ranges.Collection) error {
 			return fmt.Errorf("on file %q: row %d: field %q: invalid longitude %.6f", name, ln, f, lon)
 		}
 
-		if _, tp := c.Range(tax); tp != "" && tp != ranges.Points {
+		if tp := c.Type(tax); tp != "" && tp != ranges.Points {
 			return fmt.Errorf("taxon %q: has defined a %q map", tax, tp)
 		}
 
@@ -301,7 +301,7 @@ func readGBIFData(r io.Reader, name string, c *ranges.Collection) error {
 			return fmt.Errorf("on file %q: row %d: field %q: invalid longitude %.6f", name, ln, f, lon)
 		}
 
-		if _, tp := c.Range(tax); tp != "" && tp != ranges.Points {
+		if tp := c.Type(tax); tp != "" && tp != ranges.Points {
 			return fmt.Errorf("taxon %q: has defined a %q map", tax, tp)
 		}
 

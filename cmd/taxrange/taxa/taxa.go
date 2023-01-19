@@ -75,7 +75,8 @@ func printList(r io.Reader, w io.Writer, name string) error {
 	for _, tax := range ls {
 		fmt.Fprintf(w, "\t%s", tax)
 		if countFlag {
-			rng, tp := coll.Range(tax)
+			rng := coll.Range(tax)
+			tp := coll.Type(tax)
 			fmt.Fprintf(w, "\t%s\t%d", tp, len(rng))
 		}
 		fmt.Fprintf(w, "\n")

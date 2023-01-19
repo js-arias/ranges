@@ -172,9 +172,10 @@ func procCollection(c *ranges.Collection, bgImg image.Image, tp *model.TimePix, 
 			}
 			outImg.setModel(tp, age, keys)
 		}
-		rng, tp := c.Range(tax)
+		rng := c.Range(tax)
 		outImg.rng = rng
 
+		tp := c.Type(tax)
 		name := fmt.Sprintf("%s-%s-%.2f-%s.png", output, tax, float64(age)/millionYears, tp)
 		if err := writeImage(name, outImg); err != nil {
 			return err

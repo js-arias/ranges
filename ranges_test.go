@@ -95,10 +95,11 @@ func testCollection(t testing.TB, coll *ranges.Collection) {
 		},
 	}
 	for name, test := range tests {
-		rng, tp := coll.Range(name)
+		rng := coll.Range(name)
 		if !reflect.DeepEqual(rng, test.rng) {
 			t.Errorf("taxon %q range map: got %v, want %v", name, rng, test.rng)
 		}
+		tp := coll.Type(name)
 		if tp != test.tp {
 			t.Errorf("taxon %q range type: got %q, want %q", name, tp, test.tp)
 		}
@@ -120,10 +121,11 @@ func testCollection(t testing.TB, coll *ranges.Collection) {
 		34664: 0.5,
 		34665: 0.2,
 	}
-	rng, tp := coll.Range(nm)
+	tp := coll.Type(nm)
 	if tp != ranges.Range {
 		t.Errorf("taxon %q range type: got %q, want %q", nm, tp, ranges.Range)
 	}
+	rng := coll.Range(nm)
 	for px, p := range rng {
 		diff := p - eoRng[px]
 		if diff < 0 {

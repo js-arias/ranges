@@ -106,8 +106,7 @@ func (c *Collection) Pixelation() *earth.Pixelation {
 	return c.pix
 }
 
-// Range returns a range map of a taxon
-// and the type of the range map.
+// Range returns a range map of a taxon.
 //
 // The range map is a map of pixel IDs
 // to the probability field scaled to set
@@ -115,18 +114,18 @@ func (c *Collection) Pixelation() *earth.Pixelation {
 // (so in the case of points,
 // all points will be set to be 1.0,
 // and all other pixels will be 0.0).
-func (c *Collection) Range(name string) (map[int]float64, Type) {
+func (c *Collection) Range(name string) map[int]float64 {
 	name = canon(name)
 	if name == "" {
-		return nil, ""
+		return nil
 	}
 
 	tax, ok := c.taxa[name]
 	if !ok {
-		return nil, ""
+		return nil
 	}
 
-	return tax.rng, tax.tp
+	return tax.rng
 }
 
 // Set sets a range map for a taxon at the indicated age
@@ -177,6 +176,21 @@ func (c *Collection) Taxa() []string {
 	slices.Sort(ls)
 
 	return ls
+}
+
+// Type returns the type of a range map for a given taxon.
+func (c *Collection) Type(name string) Type {
+	name = canon(name)
+	if name == "" {
+		return ""
+	}
+
+	tax, ok := c.taxa[name]
+	if !ok {
+		return ""
+	}
+
+	return tax.tp
 }
 
 // A Taxon is a representation of a taxon range.
