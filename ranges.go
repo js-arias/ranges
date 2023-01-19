@@ -100,6 +100,28 @@ func (c *Collection) Age(name string) int64 {
 	return tax.age
 }
 
+// Delete removes the indicated taxon from the collection.
+func (c *Collection) Delete(name string) {
+	name = canon(name)
+	if name == "" {
+		return
+	}
+
+	delete(c.taxa, name)
+}
+
+// HasTaxon returns true if the indicated taxon
+// is in the collection.
+func (c *Collection) HasTaxon(name string) bool {
+	name = canon(name)
+	if name == "" {
+		return false
+	}
+
+	_, ok := c.taxa[name]
+	return ok
+}
+
 // Pixelation returns the underlying pixelation
 // of a Collection.
 func (c *Collection) Pixelation() *earth.Pixelation {

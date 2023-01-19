@@ -72,6 +72,11 @@ func testCollection(t testing.TB, coll *ranges.Collection) {
 	if ls := coll.Taxa(); !reflect.DeepEqual(ls, taxa) {
 		t.Errorf("taxa: got %v, want %v", ls, taxa)
 	}
+	for _, nm := range taxa {
+		if !coll.HasTaxon(nm) {
+			t.Errorf("hasTaxon: taxon %q not found", nm)
+		}
+	}
 
 	tests := map[string]struct {
 		age int64
@@ -139,5 +144,20 @@ func testCollection(t testing.TB, coll *ranges.Collection) {
 		if _, ok := rng[px]; !ok {
 			t.Errorf("taxon %q: pixel %d: not in range", nm, px)
 		}
+	}
+}
+
+func TestDelete(t *testing.T) {
+	coll := makeCollection(t)
+	del := "Rhododendron ericoides"
+	coll.Delete(del)
+
+	taxa := []string{"Brontostoma discus", "Eoraptor lunensis"}
+	if ls := coll.Taxa(); !reflect.DeepEqual(ls, taxa) {
+		t.Errorf("taxa: got %v, want %v", ls, taxa)
+	}
+
+	if coll.HasTaxon(del) {
+		t.Errorf("HasTaxon: taxon %q found", del)
 	}
 }
