@@ -154,6 +154,8 @@ func (c *Collection) Range(name string) map[int]float64 {
 // (in years).
 // The range is a map of pixel IDs
 // to a probability.
+// The values will be scaled so the max value will be 1,
+// and values smaller than 0.0000005 will be ignored.
 // It will overwrite any range map previously set for the taxon.
 func (c *Collection) Set(name string, age int64, rng map[int]float64) {
 	name = canon(name)
