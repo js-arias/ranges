@@ -176,7 +176,8 @@ func procCollection(c *ranges.Collection, bgImg image.Image, tp *model.TimePix, 
 		outImg.rng = rng
 
 		tp := c.Type(tax)
-		name := fmt.Sprintf("%s-%s-%.2f-%s.png", output, tax, float64(age)/millionYears, tp)
+		taxName := strings.Join(strings.Fields(tax), "_")
+		name := fmt.Sprintf("%s-%s-%.2f-%s.png", output, taxName, float64(age)/millionYears, tp)
 		if err := writeImage(name, outImg); err != nil {
 			return err
 		}
