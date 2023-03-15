@@ -260,7 +260,7 @@ func (m *mapImg) setBg(bg image.Image) {
 }
 
 func (m *mapImg) setModel(tp *model.TimePix, age int64, pix *pixKey) {
-	age = tp.CloserStageAge(age)
+	age = tp.ClosestStageAge(age)
 	for id := 0; id < m.pix.Len(); id++ {
 		v, _ := tp.At(age, id)
 		if grayFlag {

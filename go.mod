@@ -4,8 +4,8 @@ go 1.19
 
 require (
 	github.com/js-arias/command v0.0.0-20220321160405-bad66700a180
-	github.com/js-arias/earth v0.0.0-20230120143647-f67f8a80f068
-	golang.org/x/exp v0.0.0-20230118134722-a68e582fa157
+	github.com/js-arias/earth v0.0.0-20230315150828-c26e3b08ea80
+	golang.org/x/exp v0.0.0-20230315142452-642cacee5cc0
 )
 
 require gonum.org/v1/gonum v0.12.0 // indirect
