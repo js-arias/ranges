@@ -54,8 +54,8 @@ Any other columns, will be ignored. Here is an example of a pixel prior file:
 
 The flag --lambda defines the concentration parameter of the spherical normal
 (equivalent to kappa parameter of the von Mises-Fisher distribution) in
-1/degree units. If no value is defined, it will use the 1/size of a pixel in
-the pixelation used for the range files.
+1/radian^2 units. If no value is defined, it will use the 1/size^2 of a pixel
+in the pixelation used for the range files.
 
 By default only pixels at .95 of the spherical normal CDF will be used. Use
 the flag --bound to set the bound for the normal CDF.
@@ -126,12 +126,12 @@ func run(c *command.Command, args []string) (err error) {
 		return err
 	}
 
-	lambda := 1 / earth.ToRad(coll.Pixelation().Step())
-	if lambdaFlag != 0 {
-		angle := earth.ToRad(1 / lambdaFlag)
-		lambda = 1 / angle
+	if lambdaFlag == 0 {
+		angle := earth.ToRad(coll.Pixelation().Step())
+		lambdaFlag = 1 / (angle * angle)
+		fmt.Fprintf(c.Stderr(), "# Using lambda value of: %.6f\n", lambdaFlag)
 	}
-	n := dist.NewNormal(lambda, tPix.Pixelation())
+	n := dist.NewNormal(lambdaFlag, tPix.Pixelation())
 
 	for _, tax := range coll.Taxa() {
 		rng := coll.Range(tax)
