@@ -19,6 +19,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/js-arias/blind"
 	"github.com/js-arias/command"
 	"github.com/js-arias/earth"
 	"github.com/js-arias/earth/model"
@@ -228,7 +229,7 @@ func (m *mapImg) At(x, y int) color.Color {
 
 	pos := m.pix.Pixel(lat, lon).ID()
 	if v, ok := m.rng[pos]; ok {
-		return scaleColor(v)
+		return blind.Gradient(v)
 	}
 
 	c, ok := m.color[pos]
@@ -295,22 +296,6 @@ func writeImage(name string, m *mapImg) (err error) {
 		return fmt.Errorf("when encoding image file %q: %v", name, err)
 	}
 	return nil
-}
-
-func scaleColor(scale float64) color.RGBA {
-	switch {
-	case scale < 0.25:
-		g := scale * 4 * 255
-		return color.RGBA{0, uint8(g), 255, 255}
-	case scale < 0.50:
-		b := (scale - 0.25) * 4 * 255
-		return color.RGBA{0, 255, 255 - uint8(b), 255}
-	case scale < 0.75:
-		r := (scale - 0.5) * 4 * 255
-		return color.RGBA{uint8(r), 255, 0, 255}
-	}
-	g := (scale - 0.75) * 4 * 255
-	return color.RGBA{255, 255 - uint8(g), 0, 255}
 }
 
 // PixKey stores the color values
