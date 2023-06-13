@@ -135,8 +135,9 @@ func run(c *command.Command, args []string) (err error) {
 
 	for _, tax := range coll.Taxa() {
 		rng := coll.Range(tax)
-		kde := stat.KDE(n, rng, tPix, 0, prior, boundFlag)
-		kdeColl.Set(tax, 0, kde)
+		age := coll.Age(tax)
+		kde := stat.KDE(n, rng, tPix, age, prior, boundFlag)
+		kdeColl.Set(tax, age, kde)
 	}
 
 	w := c.Stdout()
