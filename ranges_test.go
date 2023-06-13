@@ -23,6 +23,7 @@ func makeCollection(t testing.TB) *ranges.Collection {
 	coll := ranges.New(earth.NewPixelation(360))
 	data := []struct {
 		name   string
+		age    int64
 		latLon [][2]float64
 	}{
 		{
@@ -41,11 +42,18 @@ func makeCollection(t testing.TB) *ranges.Collection {
 				{6.15, 116.65},
 			},
 		},
+		{
+			name: "Megazostrodon rudnerae",
+			age:  201_600_000,
+			latLon: [][2]float64{
+				{-44.1, -1.4},
+			},
+		},
 	}
 
 	for _, d := range data {
 		for _, p := range d.latLon {
-			coll.Add(d.name, 0, p[0], p[1])
+			coll.Add(d.name, d.age, p[0], p[1])
 		}
 	}
 
@@ -68,7 +76,7 @@ func testCollection(t testing.TB, coll *ranges.Collection) {
 		t.Errorf("pixelation: got %d pixels, want %d", eq, 360)
 	}
 
-	taxa := []string{"Brontostoma discus", "Eoraptor lunensis", "Rhododendron ericoides"}
+	taxa := []string{"Brontostoma discus", "Eoraptor lunensis", "Megazostrodon rudnerae", "Rhododendron ericoides"}
 	if ls := coll.Taxa(); !reflect.DeepEqual(ls, taxa) {
 		t.Errorf("taxa: got %v, want %v", ls, taxa)
 	}
@@ -96,6 +104,13 @@ func testCollection(t testing.TB, coll *ranges.Collection) {
 				18588: 1,
 				19305: 1,
 				19308: 1,
+			},
+		},
+		"Megazostrodon rudnerae": {
+			tp:  ranges.Points,
+			age: 201_600_000,
+			rng: map[int]float64{
+				34957: 1,
 			},
 		},
 	}
@@ -152,7 +167,7 @@ func TestDelete(t *testing.T) {
 	del := "Rhododendron ericoides"
 	coll.Delete(del)
 
-	taxa := []string{"Brontostoma discus", "Eoraptor lunensis"}
+	taxa := []string{"Brontostoma discus", "Eoraptor lunensis", "Megazostrodon rudnerae"}
 	if ls := coll.Taxa(); !reflect.DeepEqual(ls, taxa) {
 		t.Errorf("taxa: got %v, want %v", ls, taxa)
 	}

@@ -69,12 +69,16 @@ func (c *Collection) Add(name string, age int64, lat, lon float64) {
 	if !ok {
 		tax = &taxon{
 			name: name,
+			age:  age,
 			tp:   Points,
 			rng:  make(map[int]float64),
 		}
 		c.taxa[name] = tax
 	}
 	if tax.tp != Points {
+		return
+	}
+	if tax.age != age {
 		return
 	}
 
