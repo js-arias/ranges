@@ -10,6 +10,7 @@ import (
 	"github.com/js-arias/ranges/cmd/taxrange/imppoints"
 	"github.com/js-arias/ranges/cmd/taxrange/kde"
 	"github.com/js-arias/ranges/cmd/taxrange/mapcmd"
+	"github.com/js-arias/ranges/cmd/taxrange/rotate"
 	"github.com/js-arias/ranges/cmd/taxrange/taxa"
 )
 
@@ -22,6 +23,7 @@ func init() {
 	app.Add(imppoints.Command)
 	app.Add(kde.Command)
 	app.Add(mapcmd.Command)
+	app.Add(rotate.Command)
 	app.Add(taxa.Command)
 }
 
