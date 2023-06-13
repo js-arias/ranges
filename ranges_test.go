@@ -161,3 +161,37 @@ func TestDelete(t *testing.T) {
 		t.Errorf("HasTaxon: taxon %q found", del)
 	}
 }
+
+func TestSetPixels(t *testing.T) {
+	coll := makeCollection(t)
+
+	nm := "Eoraptor lunensis"
+	rng := map[int]float64{
+		34662: 0.2083333,
+		34663: 0.4166667,
+		34664: 0.2083333,
+		34665: 0.0833333,
+	}
+	coll.SetPixels(nm, 230_000_000, rng)
+
+	tp := coll.Type(nm)
+	if tp != ranges.Points {
+		t.Errorf("taxon %q range type: got %q, want %q", nm, tp, ranges.Points)
+	}
+
+	got := coll.Range(nm)
+	for px, p := range got {
+		if _, ok := rng[px]; !ok {
+			t.Errorf("taxon %q: pixel %d is true", nm, px)
+		}
+		if p != 1.0 {
+			t.Errorf("taxon %q: pixel %d: probability %.6f, want 1.0", nm, px, p)
+		}
+	}
+
+	for px := range rng {
+		if _, ok := got[px]; !ok {
+			t.Errorf("taxon %q: pixel %d is false", nm, px)
+		}
+	}
+}

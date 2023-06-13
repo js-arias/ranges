@@ -190,6 +190,37 @@ func (c *Collection) Set(name string, age int64, rng map[int]float64) {
 	}
 }
 
+// SetPixels sets pixel points for a taxon at the indicated age
+// (in years).
+// All pixel points will set to 1.0
+// no matter the stored value in the range.
+// It will overwrite any data previously set for the taxon.
+func (c *Collection) SetPixels(name string, age int64, rng map[int]float64) {
+	name = canon(name)
+	if name == "" {
+		return
+	}
+
+	tax, ok := c.taxa[name]
+	if !ok {
+		tax = &taxon{
+			name: name,
+		}
+		c.taxa[name] = tax
+	}
+	tax.age = age
+	tax.tp = Points
+	tax.rng = make(map[int]float64, len(rng))
+
+	for px := range rng {
+		if px >= c.pix.Len() {
+			msg := fmt.Sprintf("invalid pixel value: %d", px)
+			panic(msg)
+		}
+		tax.rng[px] = 1.0
+	}
+}
+
 // Taxa returns an slice with the taxon names
 // of the taxa in the collection of ranges.
 func (c *Collection) Taxa() []string {
