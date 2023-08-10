@@ -10,12 +10,12 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/js-arias/earth"
-	"golang.org/x/exp/slices"
 )
 
 var headerFields = []string{

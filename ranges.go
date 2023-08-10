@@ -13,12 +13,12 @@ package ranges
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 	"unicode"
 	"unicode/utf8"
 
 	"github.com/js-arias/earth"
-	"golang.org/x/exp/slices"
 )
 
 // Type is the type of range map.

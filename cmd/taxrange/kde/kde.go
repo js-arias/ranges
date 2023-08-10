@@ -136,8 +136,15 @@ func run(c *command.Command, args []string) (err error) {
 	for _, tax := range coll.Taxa() {
 		rng := coll.Range(tax)
 		age := coll.Age(tax)
-		kde := stat.KDE(n, rng, tPix, age, prior, boundFlag)
-		kdeColl.Set(tax, age, kde)
+		kde := stat.KDE(n, rng, tPix, age, prior)
+		taxKDE := make(map[int]float64)
+		for px, p := range kde {
+			if p < 1-boundFlag {
+				continue
+			}
+			taxKDE[px] = p
+		}
+		kdeColl.Set(tax, age, taxKDE)
 	}
 
 	w := c.Stdout()
