@@ -8,6 +8,7 @@
 package imppoints
 
 import (
+	"bufio"
 	"encoding/csv"
 	"errors"
 	"fmt"
@@ -39,6 +40,9 @@ an alternative format can be defined. Valid formats are:
 	darwin	DarwinCore format using tab characters as delimiters (i.e. as
 		files download from GBIF). Key fields are: "species",
 		"decimalLatitude", and "decimalLongitude".
+	pbdb    Tab-delimited files downloaded from PaleoBiology DataBase, the
+	        following fields are required: "accepted_name", "lat", and
+	        "lng".
 	csv	Darwin core files, but using commas as delimiters.
 	text	The default value, a simple tab-delimited file, with the
 		following fields: "species", "latitude", and "longitude".
@@ -92,6 +96,8 @@ func run(c *command.Command, args []string) (err error) {
 		readFunc = readGBIFData
 	case "csv":
 		readFunc = readGBIFData
+	case "pbdb":
+		readFunc = readPaleoDBData
 	default:
 		return fmt.Errorf("format %q unknown", format)
 	}
@@ -293,6 +299,98 @@ func readGBIFData(r io.Reader, name string, c *ranges.Collection) error {
 		}
 
 		f = "decimallongitude"
+		lon, err := strconv.ParseFloat(row[fields[f]], 64)
+		if err != nil {
+			return fmt.Errorf("on file %q: row %d: field %q: %v", name, ln, f, err)
+		}
+		if lon < -180 || lon > 180 {
+			return fmt.Errorf("on file %q: row %d: field %q: invalid longitude %.6f", name, ln, f, lon)
+		}
+
+		if tp := c.Type(tax); tp != "" && tp != ranges.Points {
+			return fmt.Errorf("taxon %q: has defined a %q map", tax, tp)
+		}
+
+		c.Add(tax, age, lat, lon)
+	}
+
+	return nil
+}
+
+var pbdbFields = []string{
+	"accepted_name",
+	"lat",
+	"lng",
+}
+
+func readPaleoDBData(r io.Reader, name string, c *ranges.Collection) error {
+	if name != "-" {
+		f, err := os.Open(name)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+		r = f
+	} else {
+		name = "stdin"
+	}
+
+	br := bufio.NewReader(r)
+	metaLines := 0
+	for {
+		ln, err := br.ReadString('\n')
+		if err != nil {
+			return fmt.Errorf("on file %q: %v", name, err)
+		}
+		metaLines++
+		if strings.HasPrefix(ln, "Records:") {
+			break
+		}
+	}
+
+	tab := tsv.NewReader(br)
+	tab.Comma = '\t'
+
+	head, err := tab.Read()
+	if err != nil {
+		return fmt.Errorf("on file %q: while reading header: %v", name, err)
+	}
+	fields := make(map[string]int, len(head))
+	for i, h := range head {
+		h = strings.ToLower(h)
+		fields[h] = i
+	}
+	for _, h := range pbdbFields {
+		if _, ok := fields[h]; !ok {
+			return fmt.Errorf("on file %q: expecting field %q", name, h)
+		}
+	}
+
+	age := int64(ageFlag * millionYears)
+	for {
+		row, err := tab.Read()
+		if errors.Is(err, io.EOF) {
+			break
+		}
+		ln, _ := tab.FieldPos(0)
+		ln += metaLines
+		if err != nil {
+			return fmt.Errorf("on file %q: row %d: %v", name, ln, err)
+		}
+
+		f := "accepted_name"
+		tax := row[fields[f]]
+
+		f = "lat"
+		lat, err := strconv.ParseFloat(row[fields[f]], 64)
+		if err != nil {
+			return fmt.Errorf("on file %q: row %d: field %q: %v", name, ln, f, err)
+		}
+		if lat < -90 || lat > 90 {
+			return fmt.Errorf("on file %q: row %d: field %q: invalid latitude %.6f", name, ln, f, lat)
+		}
+
+		f = "lng"
 		lon, err := strconv.ParseFloat(row[fields[f]], 64)
 		if err != nil {
 			return fmt.Errorf("on file %q: row %d: field %q: %v", name, ln, f, err)
