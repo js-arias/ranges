@@ -18,6 +18,7 @@ import (
 
 	"github.com/js-arias/command"
 	"github.com/js-arias/earth"
+	"github.com/js-arias/gbifer/tsv"
 	"github.com/js-arias/ranges"
 )
 
@@ -248,8 +249,7 @@ func readGBIFData(r io.Reader, name string, c *ranges.Collection) error {
 		name = "stdin"
 	}
 
-	tab := csv.NewReader(r)
-	tab.Comment = '#'
+	tab := tsv.NewReader(r)
 	if format != "csv" {
 		tab.Comma = '\t'
 	}
