@@ -65,6 +65,28 @@ func (c *Collection) Add(name string, age int64, lat, lon float64) {
 		return
 	}
 
+	pixID := c.pix.Pixel(lat, lon).ID()
+	c.add(name, age, pixID)
+}
+
+// AddPixel adds a pixel.
+// using the pixel ID in the underlying pixelation,
+// to a taxon at an specific age
+// (in years).
+//
+// To add a pixel the range of the taxon must be defined
+// as 'points'
+// (i.e. a presence-absence pixelation).
+func (c *Collection) AddPixel(name string, age int64, pixID int) {
+	name = canon(name)
+	if name == "" {
+		return
+	}
+
+	c.add(name, age, pixID)
+}
+
+func (c *Collection) add(name string, age int64, pixID int) {
 	tax, ok := c.taxa[name]
 	if !ok {
 		tax = &taxon{
@@ -82,8 +104,7 @@ func (c *Collection) Add(name string, age int64, lat, lon float64) {
 		return
 	}
 
-	pix := c.pix.Pixel(lat, lon).ID()
-	tax.rng[pix] = 1
+	tax.rng[pixID] = 1
 }
 
 // Age returns the age

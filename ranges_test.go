@@ -210,3 +210,100 @@ func TestSetPixels(t *testing.T) {
 		}
 	}
 }
+
+func TestAddPixel(t *testing.T) {
+	pix := earth.NewPixelation(360)
+	coll := ranges.New(pix)
+	data := []struct {
+		name   string
+		age    int64
+		latLon [][2]float64
+	}{
+		{
+			name: "Brontostoma discus",
+			latLon: [][2]float64{
+				{4.27, -72.54},
+				{8.67, -83.56},
+			},
+		},
+		{
+			name: "Rhododendron ericoides",
+			latLon: [][2]float64{
+				{4.08, 118.52},
+				{3.86, 115.55},
+				{6.08, 116.55},
+				{6.15, 116.65},
+			},
+		},
+		{
+			name: "Megazostrodon rudnerae",
+			age:  201_600_000,
+			latLon: [][2]float64{
+				{-44.1, -1.4},
+			},
+		},
+	}
+
+	for _, d := range data {
+		for _, p := range d.latLon {
+			px := pix.Pixel(p[0], p[1]).ID()
+			coll.AddPixel(d.name, d.age, px)
+		}
+	}
+
+	if eq := coll.Pixelation().Equator(); eq != 360 {
+		t.Errorf("pixelation: got %d pixels, want %d", eq, 360)
+	}
+
+	taxa := []string{"Brontostoma discus", "Megazostrodon rudnerae", "Rhododendron ericoides"}
+	if ls := coll.Taxa(); !reflect.DeepEqual(ls, taxa) {
+		t.Errorf("taxa: got %v, want %v", ls, taxa)
+	}
+	for _, nm := range taxa {
+		if !coll.HasTaxon(nm) {
+			t.Errorf("hasTaxon: taxon %q not found", nm)
+		}
+	}
+
+	tests := map[string]struct {
+		age int64
+		tp  ranges.Type
+		rng map[int]float64
+	}{
+		"Brontostoma discus": {
+			tp: ranges.Points,
+			rng: map[int]float64{
+				17319: 1,
+				19117: 1,
+			},
+		},
+		"Rhododendron ericoides": {
+			tp: ranges.Points,
+			rng: map[int]float64{
+				18588: 1,
+				19305: 1,
+				19308: 1,
+			},
+		},
+		"Megazostrodon rudnerae": {
+			tp:  ranges.Points,
+			age: 201_600_000,
+			rng: map[int]float64{
+				34957: 1,
+			},
+		},
+	}
+	for name, test := range tests {
+		rng := coll.Range(name)
+		if !reflect.DeepEqual(rng, test.rng) {
+			t.Errorf("taxon %q range map: got %v, want %v", name, rng, test.rng)
+		}
+		tp := coll.Type(name)
+		if tp != test.tp {
+			t.Errorf("taxon %q range type: got %q, want %q", name, tp, test.tp)
+		}
+		if age := coll.Age(name); age != test.age {
+			t.Errorf("taxon %q age: got %d, want %d", name, age, test.age)
+		}
+	}
+}
