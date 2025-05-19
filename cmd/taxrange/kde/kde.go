@@ -18,12 +18,12 @@ import (
 	"github.com/js-arias/earth/model"
 	"github.com/js-arias/earth/stat"
 	"github.com/js-arias/earth/stat/dist"
-	"github.com/js-arias/earth/stat/pixprob"
+	"github.com/js-arias/earth/stat/pixweight"
 	"github.com/js-arias/ranges"
 )
 
 var Command = &command.Command{
-	Usage: `kde --timepix <time-pixelation> [--prior <prior-file>]
+	Usage: `kde --timepix <time-pixelation> [--weights <weight-file>]
 	[--lambda <value>] [--bound <value>]
 	[-o|--output <file>] [<rng-file>...]`,
 	Short: "estimate a geographic range using a KDE",
@@ -35,16 +35,16 @@ One or more range files can be given as arguments. If no file is given, the
 ranges will be read from the standard input.
 
 The flag --timepix is required an defines the time pixelation that will contain
-the raster values for each pixel. Prior probabilities for each pixel type can
-be defined on a file and read with the flag --prior. The pixel prior file is a
+the raster values for each pixel. Weights for each pixel type can be defined on
+a file and read with the flag --weight. The pixel weights file is a
 tab-delimited file with the following columns:
 
 	-key	the value used as identifier
-	-prior	the prior probability for a pixel with that value
+	-weight	the weight for a pixel with that value
 
-Any other columns, will be ignored. Here is an example of a pixel prior file:
+Any other columns, will be ignored. Here is an example of a pixel weights file:
 
-	key	prior	comment
+	key	weight	comment
 	0	0.000000	deep ocean
 	1	0.010000	oceanic plateaus
 	2	0.050000	continental shelf
@@ -72,14 +72,14 @@ the indicated file.
 var lambdaFlag float64
 var boundFlag float64
 var modelFile string
-var priorFile string
+var weightFile string
 var output string
 
 func setFlags(c *command.Command) {
 	c.Flags().Float64Var(&lambdaFlag, "lambda", 0, "")
 	c.Flags().Float64Var(&boundFlag, "bound", 0.95, "")
 	c.Flags().StringVar(&modelFile, "timepix", "", "")
-	c.Flags().StringVar(&priorFile, "prior", "", "")
+	c.Flags().StringVar(&weightFile, "weights", "", "")
 	c.Flags().StringVar(&output, "output", "", "")
 	c.Flags().StringVar(&output, "o", "", "")
 }
@@ -90,9 +90,9 @@ func run(c *command.Command, args []string) (err error) {
 	}
 	tPix, err := readTimePix(modelFile)
 
-	var prior pixprob.Pixel
-	if priorFile != "" {
-		prior, err = readPixelPrior(priorFile)
+	var weights pixweight.Pixel
+	if weightFile != "" {
+		weights, err = readPixelWeights(weightFile)
 	}
 
 	coll := ranges.New(tPix.Pixelation())
@@ -136,7 +136,7 @@ func run(c *command.Command, args []string) (err error) {
 	for _, tax := range coll.Taxa() {
 		rng := coll.Range(tax)
 		age := coll.Age(tax)
-		kde := stat.KDE(n, rng, tPix, age, prior)
+		kde := stat.KDE(n, rng, tPix, age, weights)
 		taxKDE := make(map[int]float64)
 		for px, p := range kde {
 			if p < 1-boundFlag {
@@ -224,16 +224,16 @@ func readTimePix(name string) (*model.TimePix, error) {
 	return tp, nil
 }
 
-func readPixelPrior(name string) (pixprob.Pixel, error) {
+func readPixelWeights(name string) (pixweight.Pixel, error) {
 	f, err := os.Open(name)
 	if err != nil {
 		return nil, err
 	}
 	defer f.Close()
 
-	prior, err := pixprob.ReadTSV(f)
+	weights, err := pixweight.ReadTSV(f)
 	if err != nil {
 		return nil, fmt.Errorf("when reading file %q: %v", name, err)
 	}
-	return prior, nil
+	return weights, nil
 }

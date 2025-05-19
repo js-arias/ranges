@@ -11,7 +11,4 @@ require (
 	github.com/js-arias/gbifer v0.0.0-20230906190155-b9741f9e3228
 )
 
-require (
-	golang.org/x/exp v0.0.0-20240808152545-0cdaa3abc0fa // indirect
-	gonum.org/v1/gonum v0.16.0 // indirect
-)
+require gonum.org/v1/gonum v0.16.0 // indirect
