@@ -7,8 +7,6 @@
 package mapcmd
 
 import (
-	"encoding/csv"
-	"errors"
 	"fmt"
 	"image"
 	"image/color"
@@ -16,13 +14,13 @@ import (
 	"image/png"
 	"io"
 	"os"
-	"strconv"
 	"strings"
 
 	"github.com/js-arias/blind"
 	"github.com/js-arias/command"
 	"github.com/js-arias/earth"
 	"github.com/js-arias/earth/model"
+	"github.com/js-arias/earth/pixkey"
 	"github.com/js-arias/ranges"
 )
 
@@ -95,7 +93,7 @@ func run(c *command.Command, args []string) error {
 			return err
 		}
 	}
-	var keys *pixKey
+	var keys *pixkey.PixKey
 	var tPix *model.TimePix
 	if modelFile != "" {
 		if keyFlag != "" {
@@ -104,7 +102,7 @@ func run(c *command.Command, args []string) error {
 			if err != nil {
 				return err
 			}
-			if grayFlag && len(keys.gray) == 0 {
+			if grayFlag && !keys.HasGrayScale() {
 				grayFlag = false
 			}
 		}
@@ -156,7 +154,7 @@ func readCollection(r io.Reader, name string) (*ranges.Collection, error) {
 // to million years.
 const millionYears = 1_000_000
 
-func procCollection(c *ranges.Collection, bgImg image.Image, tp *model.TimePix, keys *pixKey) error {
+func procCollection(c *ranges.Collection, bgImg image.Image, tp *model.TimePix, keys *pixkey.PixKey) error {
 	ls := c.Taxa()
 	for _, tax := range ls {
 		if taxFlag != "" && taxFlag != tax {
@@ -216,7 +214,7 @@ func readTimePix(name string) (*model.TimePix, error) {
 
 type mapImg struct {
 	step  float64
-	color map[int]color.RGBA
+	color map[int]color.Color
 	pix   *earth.Pixelation
 	rng   map[int]float64
 }
@@ -242,7 +240,7 @@ func (m *mapImg) At(x, y int) color.Color {
 func newImg(pix *earth.Pixelation) *mapImg {
 	return &mapImg{
 		step:  360 / float64(colsFlag),
-		color: make(map[int]color.RGBA, pix.Len()),
+		color: make(map[int]color.Color, pix.Len()),
 		pix:   pix,
 	}
 }
@@ -260,19 +258,19 @@ func (m *mapImg) setBg(bg image.Image) {
 	}
 }
 
-func (m *mapImg) setModel(tp *model.TimePix, age int64, pix *pixKey) {
+func (m *mapImg) setModel(tp *model.TimePix, age int64, keys *pixkey.PixKey) {
 	age = tp.ClosestStageAge(age)
 	for id := 0; id < m.pix.Len(); id++ {
 		v, _ := tp.At(age, id)
 		if grayFlag {
-			cv, ok := pix.gray[v]
+			cv, ok := keys.Gray(v)
 			if !ok {
 				continue
 			}
-			m.color[id] = color.RGBA{cv, cv, cv, 255}
+			m.color[id] = cv
 			continue
 		}
-		c, ok := pix.color[v]
+		c, ok := keys.Color(v)
 		if !ok {
 			continue
 		}
@@ -298,104 +296,16 @@ func writeImage(name string, m *mapImg) (err error) {
 	return nil
 }
 
-// PixKey stores the color values
-// for a pixel value.
-type pixKey struct {
-	color map[int]color.RGBA
-	gray  map[int]uint8
-}
-
-func readKeys(name string) (*pixKey, error) {
+func readKeys(name string) (*pixkey.PixKey, error) {
 	f, err := os.Open(name)
 	if err != nil {
 		return nil, err
 	}
 	defer f.Close()
 
-	r := csv.NewReader(f)
-	r.Comma = '\t'
-	r.Comment = '#'
-
-	head, err := r.Read()
+	key, err := pixkey.Read(f)
 	if err != nil {
-		return nil, fmt.Errorf("while reading header: %v", err)
+		return nil, fmt.Errorf("while reading file %q: %v", name, err)
 	}
-	fields := make(map[string]int, len(head))
-	for i, h := range head {
-		h = strings.ToLower(h)
-		fields[h] = i
-	}
-	for _, h := range []string{"key", "color"} {
-		if _, ok := fields[h]; !ok {
-			return nil, fmt.Errorf("expecting field %q", h)
-		}
-	}
-
-	pk := &pixKey{
-		color: make(map[int]color.RGBA),
-		gray:  make(map[int]uint8),
-	}
-
-	for {
-		row, err := r.Read()
-		if errors.Is(err, io.EOF) {
-			break
-		}
-		ln, _ := r.FieldPos(0)
-		if err != nil {
-			return nil, fmt.Errorf("on row %d: %v", ln, err)
-		}
-
-		f := "key"
-		k, err := strconv.Atoi(row[fields[f]])
-		if err != nil {
-			return nil, fmt.Errorf("on row %d: field %q: %v", ln, f, err)
-		}
-
-		f = "color"
-		vals := strings.Split(row[fields[f]], ",")
-		if len(vals) != 3 {
-			return nil, fmt.Errorf("on row %d: field %q: found %d values, want 3", ln, f, len(vals))
-		}
-
-		red, err := strconv.Atoi(strings.TrimSpace(vals[0]))
-		if err != nil {
-			return nil, fmt.Errorf("on row %d: field %q [red value]: %v", ln, f, err)
-		}
-		if red > 255 {
-			return nil, fmt.Errorf("on row %d: field %q [red value]: invalid value %d", ln, f, red)
-		}
-		green, err := strconv.Atoi(strings.TrimSpace(vals[1]))
-		if err != nil {
-			return nil, fmt.Errorf("on row %d: field %q [green value]: %v", ln, f, err)
-		}
-		if green > 255 {
-			return nil, fmt.Errorf("on row %d: field %q [green value]: invalid value %d", ln, f, green)
-		}
-		blue, err := strconv.Atoi(strings.TrimSpace(vals[2]))
-		if err != nil {
-			return nil, fmt.Errorf("on row %d: field %q [blue value]: %v", ln, f, err)
-		}
-		if blue > 255 {
-			return nil, fmt.Errorf("on row %d: field %q [blue value]: invalid value %d", ln, f, blue)
-		}
-
-		c := color.RGBA{uint8(red), uint8(green), uint8(blue), 255}
-		pk.color[k] = c
-
-		f = "gray"
-		if _, ok := fields[f]; !ok {
-			continue
-		}
-		gray, err := strconv.Atoi(row[fields[f]])
-		if err != nil {
-			return nil, fmt.Errorf("on row %d: field %q: %v", ln, f, err)
-		}
-		if gray > 255 {
-			return nil, fmt.Errorf("on row %d: field %q: invalid value %d", ln, f, gray)
-		}
-
-		pk.gray[k] = uint8(gray)
-	}
-	return pk, nil
+	return key, nil
 }

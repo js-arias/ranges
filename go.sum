@@ -2,8 +2,8 @@ github.com/js-arias/blind v0.0.0-20230608213033-66946442796b h1:nHkrr8gteNBKTjQU
 github.com/js-arias/blind v0.0.0-20230608213033-66946442796b/go.mod h1:Q7A+4hvO1Jsx8WxyRPJz9QIV1B7HBsxtpWGxUrkUUQ8=
 github.com/js-arias/command v0.0.0-20220321160405-bad66700a180 h1:pE1RCqlGkRZTdwAUK833XGbz5FvTHBaS/OW0GQXz5pM=
 github.com/js-arias/command v0.0.0-20220321160405-bad66700a180/go.mod h1:ogKwQI2+xKu3CeddpPBks1UacMtHx40lkPcsP26Zyn0=
-github.com/js-arias/earth v0.0.0-20250519113847-a1fe1ac08b2d h1:xj70ZJF4OBPUa/ke0zpG5Y2AAKqebdAtHDiur1SlnKw=
-github.com/js-arias/earth v0.0.0-20250519113847-a1fe1ac08b2d/go.mod h1:3aNVKY5PYvInVgZNWa4xKeajr5vN95n7Qx1REliRPs0=
+github.com/js-arias/earth v0.0.0-20250523124243-5a52249ecc58 h1:zxJt4MYjKIQ1KDEHOvlx2hQA+sk6zJf1P5O60UJsAeo=
+github.com/js-arias/earth v0.0.0-20250523124243-5a52249ecc58/go.mod h1:A2iv27g3jp6Uj0yQLLaFYvNTEMerV6nVtehOf3nNnBA=
 github.com/js-arias/gbifer v0.0.0-20230906190155-b9741f9e3228 h1:7HhBPaWmSwvZHCNEGbtdr0IZzhEH96YHQWziaQuVglA=
 github.com/js-arias/gbifer v0.0.0-20230906190155-b9741f9e3228/go.mod h1:1uRmlNzs2lmtaskbc+anqN9bL8XkHhIOm2t7Qmf4uyw=
 gonum.org/v1/gonum v0.16.0 h1:5+ul4Swaf3ESvrOnidPp4GZbzf0mxVQpDCYUQE7OJfk=
